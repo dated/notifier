@@ -290,6 +290,6 @@ export default class Service {
         const senderPublicKey = transaction.senderPublicKey;
         if (!senderPublicKey) return null;
         const wallet = this.walletRepository.findByPublicKey(senderPublicKey);
-        return [wallet.getAttribute("delegate.username")];
+        return [wallet.getAttribute("delegate.username"), transaction.asset?.resignationType];
     }
 }

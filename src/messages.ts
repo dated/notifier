@@ -39,8 +39,16 @@ ${newForgingDelegates.map((delegate) => `- ${delegate}\n`).join("")}
     "delegate.registered": (delegate) => {
         return `🆕 New producer registered: **${delegate}**`;
     },
-    "delegate.resigned": (delegate) => {
-        return `**${delegate}** producer resigned`;
+    "delegate.resigned": (delegate, resignationType) => {
+        if (resignationType === 2) {
+            return `**${delegate}** permanently resigned`;
+        }
+
+        if (resignationType === 1) {
+            return `**${delegate}** temporarily resigned`;
+        }
+
+        return `**${delegate}** revoked their resignation`;
     },
 };
 
