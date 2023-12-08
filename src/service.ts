@@ -1,5 +1,5 @@
 import { Container, Contracts, Enums as AppEnums, Services, Utils as AppUtils } from "@arkecosystem/core-kernel";
-import { Interfaces, Utils as CryptoUtils, Managers } from "@arkecosystem/crypto";
+import { Interfaces, Managers, Utils as CryptoUtils } from "@arkecosystem/crypto";
 import axios from "axios";
 import os from "os";
 
@@ -129,6 +129,15 @@ export default class Service {
         this.emitter.listen(event, {
             handle: async (payload: any) => {
                 let { name, data } = payload;
+
+                // ignore unvote event when switching votes
+                if (
+                    name === AppEnums.VoteEvent.Unvote &&
+                    ((payload as Interfaces.ITransactionData).asset?.votes ?? []).length === 1
+                ) {
+                    return;
+                }
+
                 // this.logger.debug(`${LOG_PREFIX} Received ${name}: ${JSON.stringify(data)}`);
 
                 if (customEventName === "activedelegateschanged") {
@@ -213,21 +222,43 @@ export default class Service {
     }): Promise<any[]> {
         AppUtils.assert.defined<string>(transaction.senderPublicKey);
 
-        const delIdentifier = delegate.replace("+", "").replace("-", "");
-        const pubKeyExists = this.walletRepository.hasByPublicKey(delIdentifier);
+        const voterWallet = this.walletRepository.findByPublicKey(transaction.senderPublicKey);
 
-        let delWallet: Contracts.State.Wallet;
+        const votes: string[] = transaction.asset!.votes!;
 
-        if (pubKeyExists) {
-            delWallet = this.walletRepository.findByPublicKey(delIdentifier);
-        } else {
-            delWallet = this.walletRepository.findByUsername(delIdentifier);
+        if (votes.length > 1) {
+            let votedDelegateWallet!: Contracts.State.Wallet;
+            let unvotedDelegateWallet!: Contracts.State.Wallet;
+
+            for (const vote of votes) {
+                if (vote.startsWith("+")) {
+                    votedDelegateWallet = this.walletRepository.findByPublicKey(vote.replace("+", ""));
+                }
+
+                if (vote.startsWith("-")) {
+                    unvotedDelegateWallet = this.walletRepository.findByPublicKey(vote.replace("-", ""));
+                }
+            }
+
+            return [
+                voterWallet.getAddress(),
+                {
+                    vote: votedDelegateWallet.getAttribute("delegate.username"),
+                    unvote: unvotedDelegateWallet.getAttribute("delegate.username"),
+                },
+                CryptoUtils.formatSatoshi(voterWallet.getBalance()),
+                transaction.id,
+            ];
         }
 
-        const voterWallet = this.walletRepository.findByPublicKey(transaction.senderPublicKey);
-        const balance = CryptoUtils.formatSatoshi(voterWallet.getBalance());
+        const delegateWallet = this.walletRepository.findByPublicKey(delegate.replace("+", ""));
 
-        return [voterWallet.getAddress(), delWallet.getAttribute("delegate.username"), balance, transaction.id];
+        return [
+            voterWallet.getAddress(),
+            { vote: delegateWallet.getAttribute("delegate.username") },
+            CryptoUtils.formatSatoshi(voterWallet.getBalance()),
+            transaction.id,
+        ];
     }
 
     private async walletUnvote({
@@ -239,21 +270,15 @@ export default class Service {
     }): Promise<any[]> {
         AppUtils.assert.defined<string>(transaction.senderPublicKey);
 
-        const delIdentifier = delegate.replace("+", "").replace("-", "");
-        const pubKeyExists = this.walletRepository.hasByPublicKey(delIdentifier);
-
-        let delWallet: Contracts.State.Wallet;
-
-        if (pubKeyExists) {
-            delWallet = this.walletRepository.findByPublicKey(delIdentifier);
-        } else {
-            delWallet = this.walletRepository.findByUsername(delIdentifier);
-        }
-
+        const delegateWallet = this.walletRepository.findByPublicKey(delegate.replace("-", ""));
         const voterWallet = this.walletRepository.findByPublicKey(transaction.senderPublicKey);
-        const balance = CryptoUtils.formatSatoshi(voterWallet.getBalance());
 
-        return [voterWallet.getAddress(), delWallet.getAttribute("delegate.username"), balance, transaction.id];
+        return [
+            voterWallet.getAddress(),
+            { unvote: delegateWallet.getAttribute("delegate.username") },
+            CryptoUtils.formatSatoshi(voterWallet.getBalance()),
+            transaction.id,
+        ];
     }
 
     private async forgerMissing(wallet: any): Promise<any[]> {
