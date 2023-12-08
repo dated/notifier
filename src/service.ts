@@ -1,5 +1,5 @@
 import { Container, Contracts, Enums as AppEnums, Services, Utils as AppUtils } from "@arkecosystem/core-kernel";
-import { Interfaces, Utils as CryptoUtils } from "@arkecosystem/crypto";
+import { Interfaces, Utils as CryptoUtils, Managers } from "@arkecosystem/crypto";
 import axios from "axios";
 import os from "os";
 
@@ -61,6 +61,8 @@ export default class Service {
     private explorerTxUrl: string = "";
 
     public async listen(options: IOptions): Promise<void> {
+        Managers.configManager.setFromPreset("mainnet");
+
         LAST_ACTIVE_DELEGATES_CACHED = await this.getActiveDelegates();
 
         this.explorerTxUrl = options.explorerTx;
@@ -94,7 +96,11 @@ export default class Service {
             "getActiveDelegates",
             {},
         );
-        if (!activeDelegates) return [];
+
+        if (!activeDelegates) {
+            return [];
+        }
+
         return activeDelegates.map((wallet) => wallet.getAttribute("delegate.username"));
     }
 
@@ -182,6 +188,7 @@ export default class Service {
         if (platform === "pushover") {
             platform = "fallback";
         }
+
         return messages[platform][event](...data);
     }
 
@@ -192,9 +199,9 @@ export default class Service {
             return "discord";
         } else if (endpoint.includes("pushover.net")) {
             return "pushover";
-        } else {
-            return "fallback";
         }
+
+        return "fallback";
     }
 
     private async walletVote({
@@ -208,7 +215,9 @@ export default class Service {
 
         const delIdentifier = delegate.replace("+", "").replace("-", "");
         const pubKeyExists = this.walletRepository.hasByPublicKey(delIdentifier);
+
         let delWallet: Contracts.State.Wallet;
+
         if (pubKeyExists) {
             delWallet = this.walletRepository.findByPublicKey(delIdentifier);
         } else {
@@ -217,6 +226,7 @@ export default class Service {
 
         const voterWallet = this.walletRepository.findByPublicKey(transaction.senderPublicKey);
         const balance = CryptoUtils.formatSatoshi(voterWallet.getBalance());
+
         return [voterWallet.getAddress(), delWallet.getAttribute("delegate.username"), balance, transaction.id];
     }
 
@@ -231,7 +241,9 @@ export default class Service {
 
         const delIdentifier = delegate.replace("+", "").replace("-", "");
         const pubKeyExists = this.walletRepository.hasByPublicKey(delIdentifier);
+
         let delWallet: Contracts.State.Wallet;
+
         if (pubKeyExists) {
             delWallet = this.walletRepository.findByPublicKey(delIdentifier);
         } else {
@@ -240,6 +252,7 @@ export default class Service {
 
         const voterWallet = this.walletRepository.findByPublicKey(transaction.senderPublicKey);
         const balance = CryptoUtils.formatSatoshi(voterWallet.getBalance());
+
         return [voterWallet.getAddress(), delWallet.getAttribute("delegate.username"), balance, transaction.id];
     }
 
@@ -267,7 +280,11 @@ export default class Service {
     private async activeDelegatesChanged(block: Interfaces.IBlock): Promise<any[] | null> {
         const previouslyActiveDelegates = LAST_ACTIVE_DELEGATES_CACHED;
         const latestDelegates = (await this.triggers.call("getActiveDelegates", {})) as Contracts.State.Wallet[];
-        if (!latestDelegates) return [];
+
+        if (!latestDelegates) {
+            return [];
+        }
+
         const newActiveDelegates = latestDelegates.map((wallet) => wallet.getAttribute("delegate.username"));
 
         const droppedOutDelegates = previouslyActiveDelegates.filter((x) => !newActiveDelegates.includes(x));
@@ -279,6 +296,7 @@ export default class Service {
 
         // cache new active delegates for the next round so we know which ones change
         LAST_ACTIVE_DELEGATES_CACHED = newActiveDelegates;
+
         return [newDelegates, droppedOutDelegates];
     }
 
@@ -288,8 +306,13 @@ export default class Service {
 
     private async delegateResigned(transaction: Interfaces.ITransactionData): Promise<any[] | null> {
         const senderPublicKey = transaction.senderPublicKey;
-        if (!senderPublicKey) return null;
+
+        if (!senderPublicKey) {
+            return null;
+        }
+
         const wallet = this.walletRepository.findByPublicKey(senderPublicKey);
+
         return [wallet.getAttribute("delegate.username")];
     }
 }

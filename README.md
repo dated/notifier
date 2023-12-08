@@ -4,13 +4,14 @@ This plugin calls webhooks when a certain events occurs. You can use it to post 
 Discord, send Emails/SMS or use whichever service that supports webhooks.
 
 #### ❤️ Support maintenance and development of plugins
+
 If you find this or other plugins useful please consider voting for `deadlock` delegate on Solar or Ark networks.
 
 ## Installation
 
 ### Adding plugin to config
 
-Before restarting your process, you need to add the plugin into the very end  `core.plugins` or `relay.plugins` section of `app.json` file:
+Before restarting your process, you need to add the plugin into the very end `core.plugins` or `relay.plugins` section of `app.json` file:
 
 ```json
 {
@@ -18,28 +19,31 @@ Before restarting your process, you need to add the plugin into the very end  `c
     "options": {
         "enabled": true,
         "explorerTx": "https://explorer.ark.io/transaction/",
-        "webhooks": [{
-          "endpoint": "https://discordapp.com/api/webhooks/612412465124612462/A1Ag12F&ijafa-3mtASA121mja",
-          "payload": {
-            "msg": "content"
-          },
-          "events": ["wallet.vote", "wallet.unvote", "forger.missing", "forger.failed"]
-        }, {
-          "endpoint": "https://hooks.slack.com/services/T1212ASDA/BAEWAS12/ASxASJL901ajkS",
-          "payload": {
-            "msg": "text"
-          },
-          "events": ["wallet.vote", "wallet.unvote", "forger.missing", "forger.failed"]
-        },
-        {
-          "endpoint": "https://api.pushover.net/",
-          "payload": {
-            "msg": "message",
-            "user": "<pushover user key>",
-            "token": "<pushover token>"
-          },
-          "events": ["forger.missing", "forger.failed"]
-        }]
+        "webhooks": [
+            {
+                "endpoint": "https://discordapp.com/api/webhooks/612412465124612462/A1Ag12F&ijafa-3mtASA121mja",
+                "payload": {
+                    "msg": "content"
+                },
+                "events": ["wallet.vote", "wallet.unvote", "forger.missing", "forger.failed"]
+            },
+            {
+                "endpoint": "https://hooks.slack.com/services/T1212ASDA/BAEWAS12/ASxASJL901ajkS",
+                "payload": {
+                    "msg": "text"
+                },
+                "events": ["wallet.vote", "wallet.unvote", "forger.missing", "forger.failed"]
+            },
+            {
+                "endpoint": "https://api.pushover.net/",
+                "payload": {
+                    "msg": "message",
+                    "user": "<pushover user key>",
+                    "token": "<pushover token>"
+                },
+                "events": ["forger.missing", "forger.failed"]
+            }
+        ]
     }
 }
 ```
@@ -48,7 +52,7 @@ Before restarting your process, you need to add the plugin into the very end  `c
 
 1. Install plugin: `<command> plugin:install @deadlock-delegate/notifier`, eg: `ark plugin:install @deadlock-delegate/notifier` or `solar plugin:install @deadlock-delegate/notifier`
 2. Add plugin to `app.json`
-3. Start your node as you usually start it 
+3. Start your node as you usually start it
 
 ### For active development:
 
@@ -64,18 +68,20 @@ Assuming you don't run testnet locally via docker:
 
 ```json
 {
-  "package": "@deadlock-delegate/notifier",
-  "options": {
-    "enabled": true,
-    "explorerTx": "https://explorer.ark.io/transaction/",
-    "webhooks": [{
-      "endpoint": "webhook endpoint url",
-      "payload": {
-        "msg": "name of the message field eg. Discord has 'content', Slack has 'text', Pushover has 'message'"
-      },
-      "events": ["list of events you want to subscribe to"],
-    }]
-  }
+    "package": "@deadlock-delegate/notifier",
+    "options": {
+        "enabled": true,
+        "explorerTx": "https://explorer.ark.io/transaction/",
+        "webhooks": [
+            {
+                "endpoint": "webhook endpoint url",
+                "payload": {
+                    "msg": "name of the message field eg. Discord has 'content', Slack has 'text', Pushover has 'message'"
+                },
+                "events": ["list of events you want to subscribe to"]
+            }
+        ]
+    }
 }
 ```
 
@@ -83,30 +89,30 @@ Assuming you don't run testnet locally via docker:
 
 Handlers for unticked events haven't been implemented yet. Feel free to make a contribution.
 
-- [x] wallet.vote
-- [x] wallet.unvote
-- [x] forger.missing - when a delegate fails to forge in a round (could be any delegate)
-- [x] forger.failed - if your forger process fails to forge (only works if a plugin is running on a node with a forging process running)
-- [x] forger.started - when your forging process starts
-- [ ] block.applied
-- [x] block.forged - when your forging process forges a new block
-- [ ] block.reverted
-- [x] delegate.registered
-- [x] delegate.resigned
-- [ ] peer.added
-- [ ] peer.removed
-- [ ] transaction.applied
-- [ ] transaction.expired
-- [ ] transaction.forged
-- [ ] transaction.reverted
-- [x] activedelegateschanged - when active delegates change (voted out/in) (note: this is a custom event and does not existing in `core`!)
-- [x] voterbalancechanged:<delegate name> - when a specific delegates voter balance changes
+-   [x] wallet.vote
+-   [x] wallet.unvote
+-   [x] forger.missing - when a delegate fails to forge in a round (could be any delegate)
+-   [x] forger.failed - if your forger process fails to forge (only works if a plugin is running on a node with a forging process running)
+-   [x] forger.started - when your forging process starts
+-   [ ] block.applied
+-   [x] block.forged - when your forging process forges a new block
+-   [ ] block.reverted
+-   [x] delegate.registered
+-   [x] delegate.resigned
+-   [ ] peer.added
+-   [ ] peer.removed
+-   [ ] transaction.applied
+-   [ ] transaction.expired
+-   [ ] transaction.forged
+-   [ ] transaction.reverted
+-   [x] activedelegateschanged - when active delegates change (voted out/in) (note: this is a custom event and does not existing in `core`!)
+-   [x] voterbalancechanged:<delegate name> - when a specific delegates voter balance changes
 
 ## Credits
 
-- [roks0n](https://github.com/roks0n)
-- [console](https://github.com/c0nsol3/)
-- [All Contributors](../../contributors)
+-   [roks0n](https://github.com/roks0n)
+-   [console](https://github.com/c0nsol3/)
+-   [All Contributors](../../contributors)
 
 ## License
 

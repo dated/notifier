@@ -1,36 +1,46 @@
 {
-  "name": "@deadlock-delegate/notifier",
-  "version": "2.0.23",
-  "description": "Allows you to subscribe and be notified about core events ",
-  "author": "deadock",
-  "license": "MIT",
-  "keywords": [
-    "blockchain",
-    "ark",
-    "solar",
-    "broadcaster"
-  ],
-  "main": "dist/service-provider.js",
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/deadlock-delegate/notifier.git"
-  },
-  "bugs": {
-    "url": "https://github.com/deadlock-delegate/notifier/issues"
-  },
-  "homepage": "https://github.com/deadlock-delegate/notifier",
-  "files": [
-    "dist"
-  ],
-  "scripts": {
-    "compile": "../../node_modules/typescript/bin/tsc",
-    "build": "yarn clean && yarn compile",
-    "clean": "del dist"
-  },
-  "dependencies": {
-    "@arkecosystem/core-kernel": "^3.2.0 || ^4.0.0-next.9",
-    "@arkecosystem/crypto": "^3.2.0 || ^4.0.0-next.9",
-    "@types/node": "^16.9.1",
-    "axios": "^0.21.4"
-  }
+    "name": "@deadlock-delegate/notifier",
+    "version": "2.0.23",
+    "description": "Allows you to subscribe and be notified about core events ",
+    "author": "deadock",
+    "license": "MIT",
+    "keywords": [
+        "blockchain",
+        "ark",
+        "solar",
+        "broadcaster"
+    ],
+    "main": "dist/service-provider.js",
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/deadlock-delegate/notifier.git"
+    },
+    "bugs": {
+        "url": "https://github.com/deadlock-delegate/notifier/issues"
+    },
+    "homepage": "https://github.com/deadlock-delegate/notifier",
+    "files": [
+        "dist"
+    ],
+    "scripts": {
+        "compile": "../../node_modules/typescript/bin/tsc",
+        "build": "yarn clean && yarn compile",
+        "clean": "del dist",
+        "lint": "../../node_modules/eslint/bin/eslint.js . --ext .ts --fix",
+        "prettier": "prettier --write './**/*.{ts,js,json,md}'",
+        "format": "yarn lint && yarn prettier"
+    },
+    "dependencies": {
+        "@arkecosystem/core-kernel": "3.8.2",
+        "@arkecosystem/crypto": "3.8.2",
+        "@types/node": "^16.9.1",
+        "axios": "^0.21.4"
+    },
+    "prettier": {
+        "printWidth": 120,
+        "singleQuote": false,
+        "tabWidth": 4,
+        "trailingComma": "all",
+        "useTabs": false
+    }
 }
