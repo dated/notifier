@@ -133,7 +133,7 @@ export default class Service {
                 // ignore unvote event when switching votes
                 if (
                     name === AppEnums.VoteEvent.Unvote &&
-                    ((data.transaction as Interfaces.ITransactionData)?.asset?.votes ?? []).length === 1
+                    ((data.transaction as Interfaces.ITransactionData)?.asset?.votes ?? []).length > 1
                 ) {
                     return;
                 }
